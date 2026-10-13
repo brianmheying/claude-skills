@@ -2,7 +2,7 @@
 
 A personal library of reusable [Claude Skills](https://www.anthropic.com/news/skills) — packaged instructions that give Claude a specific, repeatable way to approach a task.
 
-Each Skill lives in its own folder with a `Skill.md` (the skill definition Claude reads) and a `README.md` (a human-readable explanation of what it does and when to use it). Some Skills also include `references/`, `scripts/` and `tests/`; personal settings for those go in a git-ignored local config, never in the repo.
+Each Skill lives in its own folder with a skill definition Claude reads (`SKILL.md`, the filename Claude's skill format specifies; older Skills here use `Skill.md`, and either installs as `SKILL.md`) and a `README.md` (a human-readable explanation of what it does and when to use it). Some Skills also include `references/`, `scripts/` and `tests/`; personal settings for those go in a git-ignored local config, never in the repo.
 
 ## Catalog
 

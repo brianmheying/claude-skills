@@ -81,8 +81,14 @@ def load_config(explicit=None):
     return cfg
 
 
-def discover_root(cfg, explicit=None):
+SEARCH_BASES = ["~/mnt", "/mnt/user-data/uploads", "~/Desktop", "~/Documents"]
+
+
+def discover_root(cfg, explicit=None, trace=None):
+    """Find the Career OS data folder. Never falls back to a partial or archived ledger:
+    a candidate qualifies only if it contains the exact configured claim-ledger path."""
     rel = cfg["paths"]["claim_ledger"]
+    log = trace if trace is not None else []
     if explicit:
         return os.path.abspath(os.path.expanduser(explicit)), "--root"
     if os.environ.get("CAREER_OS_DIR"):
@@ -97,16 +103,37 @@ def discover_root(cfg, explicit=None):
         if nd == d:
             break
         d = nd
-    for base in [os.path.expanduser("~/mnt"), "/mnt/user-data/uploads", os.path.expanduser("~/Desktop"), os.path.expanduser("~/Documents")]:
-        if os.path.isdir(base):
+    log.append(f"current directory and parents ({len(seen)} folders)")
+    for base in SEARCH_BASES:
+        b = os.path.expanduser(base)
+        if os.path.isdir(b):
             try:
-                seen += [os.path.join(base, x) for x in sorted(os.listdir(base))]
+                kids = [os.path.join(b, x) for x in sorted(os.listdir(b))]
             except OSError:
-                pass
+                kids = []
+            log.append(f"{base}: {len(kids)} folder(s) checked")
+            seen += kids
+        else:
+            log.append(f"{base}: not present in this environment")
     for cand in seen:
         if os.path.isfile(os.path.join(cand, rel)):
             return cand, "auto-discovered"
     return None, "not found"
+
+
+ACCESS_HELP = """The Career OS data folder is not reachable from where this script is running.
+
+Where the script runs matters:
+  - Installed in Claude (claude.ai / Claude app): skills run in Claude's cloud sandbox,
+    which cannot see your computer's folders. A session linked to your computer can
+    stage a read-only snapshot of the needed Career OS files into the session
+    (they land under /mnt/user-data/uploads/<folder name>/...), and discovery finds them.
+    A session that is not linked cannot reach Career OS at all.
+  - On your computer (Terminal, Claude Code, or a linked session's device shell):
+    discovery checks ~/Desktop, ~/Documents and connected folders under ~/mnt.
+  - Anywhere: pass --root PATH or set CAREER_OS_DIR.
+
+Without the ledger, no claim can be marked verified. Stop at the worksheet."""
 
 
 def rpath(root, rel):
@@ -115,8 +142,8 @@ def rpath(root, rel):
 
 def load_ledger(root, cfg):
     if not root:
-        print("SETUP ERROR: Career OS data folder not found. Pass --root, set $CAREER_OS_DIR, or set career_os_dir in a local config.", file=sys.stderr)
-        print("No claim can be marked verified without the live ledger. Stop at the worksheet.", file=sys.stderr)
+        print("SETUP ERROR: Career OS data folder not found (looked for " + cfg["paths"]["claim_ledger"] + ").", file=sys.stderr)
+        print(ACCESS_HELP, file=sys.stderr)
         sys.exit(2)
     p = rpath(root, cfg["paths"]["claim_ledger"])
     if not os.path.exists(p):
@@ -126,16 +153,35 @@ def load_ledger(root, cfg):
     with open(p, encoding="utf-8-sig", newline="") as f:
         rows = list(csv.DictReader(f))
     mtime = dt.datetime.fromtimestamp(os.path.getmtime(p)).strftime("%Y-%m-%d %H:%M")
+    if p.startswith("/mnt/user-data/uploads"):
+        mtime = f"snapshot staged {mtime}"
     return {r["claim_id"].strip(): r for r in rows}, p, mtime
 
 
 def cmd_where(a, cfg):
     print(f"config:      {cfg['_source']}")
-    print(f"data folder: {a.root or '(not found)'}  [{a.root_source}]")
-    if a.root:
-        p = rpath(a.root, cfg["paths"]["claim_ledger"])
-        print(f"ledger:      {'present' if os.path.exists(p) else 'MISSING'} ({cfg['paths']['claim_ledger']})")
-    sys.exit(0 if a.root else 2)
+    print(f"looking for: {cfg['paths']['claim_ledger']}")
+    if a.root_source == "not found":
+        print("data folder: (not found)")
+        print("searched:    " + "\n             ".join(a.trace))
+        print()
+        print(ACCESS_HELP)
+        sys.exit(2)
+    print(f"data folder: {a.root}  [{a.root_source}]")
+    p = rpath(a.root, cfg["paths"]["claim_ledger"])
+    ok = os.path.exists(p)
+    print(f"ledger:      {'present' if ok else 'MISSING at that path'}")
+    if ok:
+        with open(p, encoding="utf-8-sig", newline="") as f:
+            n = sum(1 for _ in csv.DictReader(f))
+        mtime = dt.datetime.fromtimestamp(os.path.getmtime(p)).strftime("%Y-%m-%d %H:%M")
+        if a.root.startswith("/mnt/user-data/uploads"):
+            print(f"             {n} claims, snapshot staged {mtime}")
+            print("note:        a read-only snapshot in this session, not the live folder; the time shown is when it")
+            print("             was staged, not when the ledger was last edited. Re-stage if the ledger changes.")
+        else:
+            print(f"             {n} claims, modified {mtime}")
+    sys.exit(0 if ok else 2)
 
 
 # ---------------------------------------------------------------- claims
@@ -721,7 +767,7 @@ def cmd_validate(a, cfg):
             seen.add(w[0]); uw.append(w)
     verdict = "BLOCKED" if blocks else ("PASS WITH WARNINGS" if uw else "PASS")
     print(f"VALIDATION: {verdict}   channel={a.channel}  status={a.status}")
-    print(f"characters={stats['chars']}  body_words={stats['words']}  ledger={os.path.basename(lpath)} (modified {lmtime})")
+    print(f"characters={stats['chars']}  body_words={stats['words']}  ledger={os.path.basename(lpath)} ({lmtime if lmtime.startswith('snapshot') else 'modified ' + lmtime})")
     for b in blocks:
         print(f"  BLOCK  {b}")
     for w, sug in uw:
@@ -788,7 +834,8 @@ def main():
     known, _ = pre.parse_known_args()
     cfg = load_config(known.config)
     a = build_parser().parse_args()
-    a.root, a.root_source = discover_root(cfg, a.root)
+    a.trace = []
+    a.root, a.root_source = discover_root(cfg, a.root, a.trace)
     {"where": cmd_where, "claims": cmd_claims, "prior-contact": cmd_prior_contact, "warm-paths": cmd_warm_paths,
      "count": cmd_count, "validate": cmd_validate, "log-row": cmd_log_row}[a.cmd](a, cfg)
 

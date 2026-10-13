@@ -18,35 +18,35 @@ The skill researches recipients, verifies contact information, recommends one re
 **This skill folder** holds the instructions, references, validator and tests. It contains no personal data.
 
 ```
-Skill.md                          this file
+SKILL.md                          this file
+README.md
 config.template.json              defaults (no personal data)
 config.local.json                 optional, private overrides (never published)
 references/recipients_and_channels.md
 references/message_shapes.md
 scripts/outreach_tools.py         lookups + validator (Python 3, standard library)
+scripts/package_skill.py          builds and verifies the installable zip
 tests/run_cases.py                regression runner
+tests/cases_synthetic.json        synthetic cases (fictional data)
+tests/fixtures/test_ledger.csv    synthetic ledger
 ```
 
-**The Career OS data folder** is the source of truth for the claim ledger, application history and outreach records. The skill reads it and never edits historical records. Paths inside it are set in `config.template.json` under `paths`. The main ones:
+**The Career OS data folder** is the source of truth for the claim ledger, application history and outreach records. The skill reads it and never edits historical records. Paths inside it are set in `config.template.json` under `paths`.
 
-- claim ledger (`paths.claim_ledger`): the only evidence source
-- outreach log (`paths.outreach_log`)
-- past outreach batches (`paths.outreach_history_glob`)
-- LinkedIn export (connections, messages)
-- voice profile
+## Reaching Career OS (do this first)
 
-### Finding the data folder
+Run `python3 <this skill>/scripts/outreach_tools.py where` before Step 1. It reports the data folder it found, or exactly where it looked and why it failed.
 
-Run `python3 scripts/outreach_tools.py where` first. The script resolves the data folder in this order, without any machine path in the skill:
+Where the skill runs decides what it can reach:
 
-1. `--root <path>`
-2. `$CAREER_OS_DIR`
-3. `career_os_dir` in a private config (`config.local.json` or `~/.config/application-outreach/config.json`)
-4. Auto-discovery: the first folder that contains the configured claim-ledger path. It searches the current directory and its parents, then one level inside `~/mnt` (a linked computer's connected folders), `/mnt/user-data/uploads` (files staged into this session), `~/Desktop` and `~/Documents`.
+| Where it's running | Can it reach Career OS? | What to do |
+|---|---|---|
+| **Installed in Claude, session linked to the user's computer** (device tools such as `device_stage_files` are available) | Not directly. Skills run in Claude's cloud sandbox, which can't see the computer's folders. | Stage a read-only snapshot of the files the run needs from the Career OS folder with `device_stage_files`: the claim ledger (always), plus the outreach log, the past outreach batches and the LinkedIn connections/messages exports when Steps 1–3 need them. They land under `/mnt/user-data/uploads/<Career OS folder name>/…` with their relative paths kept, and `where` discovers them. The snapshot lives only in this session. Re-stage if the ledger changes mid-session. Never copy any of it into the skill folder or a repository. |
+| **Linked session with a device shell**, and this skill's source folder connected | Yes | Run the script through the device shell from the connected skill folder. Discovery checks connected folders under `~/mnt`. |
+| **On the user's computer** (Terminal or Claude Code) | Yes | Discovery checks `~/Desktop` and `~/Documents`, or pass `--root` / set `CAREER_OS_DIR`. |
+| **Installed in Claude, session not linked** | **No** | Say so plainly: "This session isn't linked to your computer, so I can't read the claim ledger." Steps 1–3 can run, but the worksheet marks every accomplishment `UNVERIFIED: ledger unavailable` and the skill stops there. Don't work around it. |
 
-If this session reaches the user's computer only through a bridge, either run the script there (device shell, with this skill folder connected), or stage the ledger and the outreach records into this session and let discovery find them under `/mnt/user-data/uploads`.
-
-If no data folder is found, see **When things are missing**. Never substitute remembered claims for the ledger.
+Discovery order: `--root`, then `$CAREER_OS_DIR`, then `career_os_dir` in a private config, then auto-discovery. Auto-discovery looks for a folder containing the *exact* configured ledger path in the current directory and its parents, then one level inside `~/mnt`, `/mnt/user-data/uploads`, `~/Desktop` and `~/Documents`. It never falls back to another ledger copy (archives hold older versions).
 
 ## Hard rules
 
@@ -175,7 +175,7 @@ Defaults live in `config.template.json` under `voice_style`, and each traces to 
 
 | Missing | What happens |
 |---|---|
-| **Data folder or claim ledger** | Steps 1–3 can run. The worksheet marks every accomplishment `UNVERIFIED: ledger unavailable`, and the skill stops there. No drafts containing accomplishments. A claim-free routing note may be drafted if the user asks, and it is still checked for channel and limits. |
+| **Data folder or claim ledger** (see *Reaching Career OS*) | Steps 1–3 can run. The worksheet marks every accomplishment `UNVERIFIED: ledger unavailable`, and the skill stops there. No drafts containing accomplishments. A claim-free routing note may be drafted if the user asks, and it is still checked for channel and limits. |
 | **Python unavailable** | Count characters with any code execution available. Check claims by quoting each ledger row beside its sentence. Label the output `validated manually`. |
 | **No confirmed or verified email** | Recommend a LinkedIn connection request to the same recipient. Never downgrade to an easier-to-reach person. |
 | **No LinkedIn connect option** | Report that the top recipient can't be reached by approved channels. Offer the next-ranked recipient separately, labelled as a substitute. No InMail unless enabled. |

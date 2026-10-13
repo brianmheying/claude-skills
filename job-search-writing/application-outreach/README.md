@@ -22,11 +22,22 @@ After deciding a role is worth pursuing and running `jd-five-problems`, either b
 
 The skill holds no personal data. It reads a separate data folder (the "Career OS"), found through `--root`, `$CAREER_OS_DIR`, a private config, or auto-discovery by the claim-ledger path. Personal settings go in `config.local.json` or `~/.config/application-outreach/config.json`. Both are git-ignored.
 
+**Where it can read data.** Installed in Claude, the skill runs in Claude's cloud sandbox, which can't see your computer's folders. In a session linked to your computer, Claude stages a read-only snapshot of the ledger (and any outreach records the run needs) into that session. In an unlinked session, the skill says it can't reach the ledger and stops at the worksheet. Run on your own computer, it finds the data folder directly. `scripts/outreach_tools.py where` shows what it found and where it looked.
+
+## Install
+
+```
+python3 scripts/package_skill.py --out <folder where you keep skill zips>/application-outreach.zip
+```
+
+This builds the zip (SKILL.md, references, scripts, tests and fixtures; executables marked), then extracts it and runs the synthetic suite from the extracted copy. Upload the zip to Claude the same way as any custom skill, replacing the previous version. Leave out `config.local.json` with `--no-local-config` if you don't want personal settings in the upload.
+
 ## Files included
 
-- `Skill.md`: the skill definition
+- `SKILL.md`: the skill definition
 - `config.template.json`: defaults, with no personal data
 - `references/recipients_and_channels.md`: involvement tiers, email confidence classes, channel decision order, follow-up rules
 - `references/message_shapes.md`: the worksheet, and message shapes by recipient, status and channel
+- `scripts/package_skill.py`: builds and verifies the installable zip
 - `scripts/outreach_tools.py`: data-folder discovery, ledger lookups, prior-contact and warm-path checks, the validator, and log rows (Python 3, standard library only)
 - `tests/run_cases.py`, `tests/cases_synthetic.json`, `tests/fixtures/test_ledger.csv`: a synthetic regression suite with fictional claims (`python3 tests/run_cases.py`)
