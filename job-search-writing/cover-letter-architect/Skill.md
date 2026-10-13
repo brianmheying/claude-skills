@@ -348,6 +348,36 @@ Never:
 
 Accuracy beats apparent fit.
 
+### Live Ledger Gate
+
+Run this before building the evidence map (Stage 2) and before any Voice QA verdict. READY requires it. The locked resume does not outrank the ledger: a claim that appears on a shipped resume still has to pass this gate.
+
+The canonical claim ledger is `CANONICAL_CLAIM_LEDGER.csv` in the user's Career OS data folder. Look for it in `$CAREER_OS_DIR`, in folders connected to this session, and in files staged into it. Use the live file or a freshly staged copy, and record which one, with its path and time. Memory, earlier summaries in the thread, prior adjudications and the document itself are never substitutes for the ledger.
+
+**Substantive claims must match a ledger row.** This covers every:
+
+- accomplishment
+- metric or figure
+- mechanism (what was built and how it worked)
+- attribution (who did it, individual versus shared credit, who established a finding versus who applied it)
+- scope (business unit, period, cumulative versus annual, influenced versus generated)
+
+A substantive claim is a material issue when any of these is true:
+
+- no ledger row supports it
+- its row's `resume_use` is `Do not use` or `Hold`, or it is `Context only` and the document presents it as an accomplishment
+- the wording breaks the row's `scope_and_attribution`
+- the wording breaks a "Never…", "NOT…", "Omit…" or "Avoid…" instruction in the row's notes
+- a figure comes from something the row marks unverified, disputed or unresolved
+
+**Ordinary factual statements are not blocked for lacking an accomplishment row.** Tools used, responsibilities held, employment history (employers, titles, dates) and years or kinds of experience are validated against appropriate evidence instead: a ledger technical-competency or context row where one exists, the master resume, prior adjudications or corrections, or the user's firsthand confirmation. Flag one only when evidence contradicts it or the user cannot confirm it. A tool, responsibility or experience line becomes substantive as soon as it carries a result, a figure or a claim about impact.
+
+**The ledger is authoritative for claims it already covers.** When the user gives new firsthand evidence that conflicts with a ledger row, do not silently override the ledger and do not silently discard the user's account. Record a ledger conflict for adjudication (claim ID, ledger text, the user's statement, date). Until the ledger is updated through the user's adjudication, the document must not rely on the conflicting version. New evidence that adds to a claim without contradicting it may be used, and is noted as a ledger-update candidate.
+
+**Ledger unavailable.** If the ledger cannot be reached, the most favorable verdict is not available. Say which claims depend on the check.
+
+**Effect.** A Stage 2 evidence point that fails the gate is not used. In Voice QA, each material ledger issue is a material issue. If the ledger cannot be reached, Voice QA cannot return READY: return MATERIAL REVISION NEEDED with "Live ledger check not performed" as a material issue.
+
 ## Step 7: Test for Differentiation
 
 Explicitly ask:
@@ -685,7 +715,7 @@ Identify the 2–4 strongest evidence points.
 For each:
 
 **Evidence:**  
-**Source/confidence:**  
+**Source/confidence:** (ledger claim ID, or the evidence used for an ordinary factual statement)  
 **Argumentative job:**  
 **Connection to thesis:**
 
@@ -729,6 +759,10 @@ Do not automatically draft it.
 Answer:
 
 > What will the reader understand about how this candidate thinks that they would not learn from the resume alone?
+
+### LEDGER CHECK
+
+The same block as in Voice QA: ledger path and live-or-staged, claim IDs checked, issues, conflicts for adjudication, or NOT PERFORMED with the reason.
 
 ### RISKS
 
@@ -779,6 +813,8 @@ Flag any sentence that converts hypothesis into unsupported fact.
 ### Evidence integrity
 
 Are claims and metrics defensible?
+
+Run the Live Ledger Gate (Step 6) on every substantive claim in the draft.
 
 Has the prose accidentally expanded the scope of an accomplishment?
 
@@ -848,6 +884,17 @@ For each:
 
 Explicitly protect strong passages, ideas, or decisions from unnecessary editing.
 
+### LEDGER CHECK
+
+One block, always present:
+
+- **Ledger:** path, and whether it is the live file or a staged copy (with the time)
+- **Claims checked:** claim IDs
+- **Issues:** none, or each issue with its claim ID and the ledger text it breaks
+- **Conflicts for adjudication:** none, or each conflict between the ledger and new firsthand evidence
+
+Or: **NOT PERFORMED**, with the reason. READY is not available when it was not performed.
+
 ### STOPPING INSTRUCTION
 
 If READY:
@@ -907,6 +954,7 @@ Architecture is complete when:
 - the paragraph jobs are clear
 - differentiation is real rather than manufactured
 - there are no material unresolved integrity problems
+- the Live Ledger Gate has passed for every evidence point
 
 At that point, stop architecting.
 
@@ -947,5 +995,9 @@ Never force a cover letter when there is no company-specific reason for one to e
 Never assume a finished AI draft is preferable to a strong architecture.
 
 Never continue editing after the expected value of another change has become negligible or negative.
+
+Never issue READY, or hand off an architecture, without the Live Ledger Gate.
+
+Never silently override the canonical ledger with new evidence; flag the conflict for adjudication.
 
 The Skill succeeds when it helps the candidate discover and structure a company-specific argument worth making, protects the integrity of that argument, and then gets out of the way so the candidate can write it in their own language.

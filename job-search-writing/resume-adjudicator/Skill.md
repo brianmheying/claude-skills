@@ -262,6 +262,36 @@ If contradictory evidence reveals that a prior adjudication was based on a mater
 
 Do not patch a conclusion built on a corrupted premise.
 
+## Step 6a: Live Ledger Gate
+
+Run this before issuing any verdict. SHIP AS-IS requires it.
+
+The canonical claim ledger is `CANONICAL_CLAIM_LEDGER.csv` in the user's Career OS data folder. Look for it in `$CAREER_OS_DIR`, in folders connected to this session, and in files staged into it. Use the live file or a freshly staged copy, and record which one, with its path and time. Memory, earlier summaries in the thread, prior adjudications and the document itself are never substitutes for the ledger.
+
+**Substantive claims must match a ledger row.** This covers every:
+
+- accomplishment
+- metric or figure
+- mechanism (what was built and how it worked)
+- attribution (who did it, individual versus shared credit, who established a finding versus who applied it)
+- scope (business unit, period, cumulative versus annual, influenced versus generated)
+
+A substantive claim is a material issue when any of these is true:
+
+- no ledger row supports it
+- its row's `resume_use` is `Do not use` or `Hold`, or it is `Context only` and the document presents it as an accomplishment
+- the wording breaks the row's `scope_and_attribution`
+- the wording breaks a "Never…", "NOT…", "Omit…" or "Avoid…" instruction in the row's notes
+- a figure comes from something the row marks unverified, disputed or unresolved
+
+**Ordinary factual statements are not blocked for lacking an accomplishment row.** Tools used, responsibilities held, employment history (employers, titles, dates) and years or kinds of experience are validated against appropriate evidence instead: a ledger technical-competency or context row where one exists, the master resume, prior adjudications or corrections, or the user's firsthand confirmation. Flag one only when evidence contradicts it or the user cannot confirm it. A tool, responsibility or experience line becomes substantive as soon as it carries a result, a figure or a claim about impact.
+
+**The ledger is authoritative for claims it already covers.** When the user gives new firsthand evidence that conflicts with a ledger row, do not silently override the ledger and do not silently discard the user's account. Record a ledger conflict for adjudication (claim ID, ledger text, the user's statement, date). Until the ledger is updated through the user's adjudication, the document must not rely on the conflicting version. New evidence that adds to a claim without contradicting it may be used, and is noted as a ledger-update candidate.
+
+**Ledger unavailable.** If the ledger cannot be reached, the most favorable verdict is not available. Say which claims depend on the check.
+
+**Effect on the verdict.** Each material ledger issue is a required change and counts toward the maximum of three. If ledger issues alone exceed three, return REOPEN. If the ledger cannot be reached, do not issue SHIP AS-IS: return SURGICAL CHANGES REQUIRED with "Live ledger check not performed" as a required item.
+
 ## Step 7: Apply the Materiality Test
 
 A finding belongs in the required-fix list only if it could realistically affect interview probability.
@@ -352,6 +382,8 @@ This does not mean the resume is perfect.
 It means further editing is unlikely to improve interview probability enough to justify touching a working document.
 
 When this verdict applies, explicitly tell the user to stop editing.
+
+SHIP AS-IS requires a completed Live Ledger Gate (Step 6a) with no material ledger issues.
 
 ### SURGICAL CHANGES REQUIRED
 
@@ -512,6 +544,17 @@ Briefly distinguish, when relevant:
 
 Do not convert candidacy weakness into a lower document verdict unless the resume itself handles the available evidence poorly.
 
+### LEDGER CHECK
+
+One block, always present:
+
+- **Ledger:** path, and whether it is the live file or a staged copy (with the time)
+- **Claims checked:** claim IDs
+- **Issues:** none, or each issue with its claim ID and the ledger text it breaks
+- **Conflicts for adjudication:** none, or each conflict between the ledger and new firsthand evidence
+
+Or: **NOT PERFORMED**, with the reason.
+
 ### CARRY FORWARD
 
 Record only facts worth preserving if another adjudication round occurs, such as:
@@ -565,5 +608,9 @@ Never continue optimizing after the expected value of another edit has become ne
 Never silently overturn a previously settled decision without new material evidence.
 
 Never hide uncertainty behind confident language.
+
+Never issue SHIP AS-IS without the Live Ledger Gate.
+
+Never silently override the canonical ledger with new evidence; flag the conflict for adjudication.
 
 The Skill succeeds when it can confidently identify a real problem and, when appropriate, confidently say there is nothing left worth fixing.

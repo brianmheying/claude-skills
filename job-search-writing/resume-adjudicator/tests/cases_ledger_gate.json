@@ -1,0 +1,26 @@
+{
+  "_comment": "Synthetic cases only. Each rule lists phrases that must stay in the skill text; each case names the rule that decides it. 'only' limits a rule to one skill.",
+  "rules": {
+    "G1_locate": {"must_contain": ["Live Ledger Gate", "CANONICAL_CLAIM_LEDGER.csv", "never substitutes for the ledger"]},
+    "G2_substantive": {"must_contain": ["Substantive claims must match a ledger row", "accomplishment", "metric or figure", "mechanism", "attribution", "scope"]},
+    "G3_violations": {"must_contain": ["no ledger row supports it", "scope_and_attribution", "\"Never…\", \"NOT…\", \"Omit…\" or \"Avoid…\"", "unverified, disputed or unresolved"]},
+    "G4_ordinary": {"must_contain": ["Ordinary factual statements are not blocked for lacking an accomplishment row", "validated against appropriate evidence", "becomes substantive as soon as it carries a result"]},
+    "G5_conflict": {"must_contain": ["The ledger is authoritative for claims it already covers", "do not silently override the ledger", "Record a ledger conflict for adjudication", "ledger-update candidate"]},
+    "G6_unavailable": {"must_contain": ["Ledger unavailable", "Live ledger check not performed"]},
+    "G7_output": {"must_contain": ["### LEDGER CHECK", "Conflicts for adjudication", "NOT PERFORMED"]},
+    "G8_guardrail": {"must_contain": ["Never silently override the canonical ledger with new evidence; flag the conflict for adjudication."]},
+    "RA_verdict": {"only": ["resume-adjudicator"], "must_contain": ["SHIP AS-IS requires a completed Live Ledger Gate", "do not issue SHIP AS-IS", "Never issue SHIP AS-IS without the Live Ledger Gate."]},
+    "CL_verdict": {"only": ["cover-letter-architect"], "must_contain": ["READY requires it", "Voice QA cannot return READY", "The locked resume does not outrank the ledger", "Never issue READY, or hand off an architecture, without the Live Ledger Gate."]}
+  },
+  "cases": [
+    {"id": "C1", "rule": "G3_violations", "sentence": "94% of members who hit the threshold renewed.", "ledger": "Figure unverified as an observed outcome; omit until reconciled.", "expect": "material issue"},
+    {"id": "C2", "rule": "G3_violations", "sentence": "Built a churn-prediction model for dormant accounts.", "ledger": "Rebuilt an inherited re-engagement campaign. NOT a predictive churn model.", "expect": "material issue"},
+    {"id": "C3", "rule": "G3_violations", "sentence": "Reached 50K inactive accounts.", "ledger": "(no row)", "expect": "material issue"},
+    {"id": "C4", "rule": "G3_violations", "sentence": "Generated $2M in retention revenue.", "ledger": "$2M influenced, cumulative, shared credit. Never 'generated'.", "expect": "material issue"},
+    {"id": "C5", "rule": "G4_ordinary", "sentence": "Platforms: HubSpot, Looker.", "ledger": "(no accomplishment row; tool listed in master resume)", "expect": "pass after evidence check"},
+    {"id": "C6", "rule": "G4_ordinary", "sentence": "Director of Digital Marketing, 2018–2023.", "ledger": "(employment history)", "expect": "pass after evidence check"},
+    {"id": "C7", "rule": "G4_ordinary", "sentence": "Used Looker to cut reporting time 40%.", "ledger": "(no row)", "expect": "substantive: material issue"},
+    {"id": "C8", "rule": "G5_conflict", "sentence": "User now says the threshold analysis was his own.", "ledger": "Finding established by an analyst; user applied it.", "expect": "conflict flagged for adjudication; document uses ledger version"},
+    {"id": "C9", "rule": "G6_unavailable", "sentence": "(ledger not reachable)", "ledger": "(none)", "expect": "no SHIP AS-IS / no READY"}
+  ]
+}

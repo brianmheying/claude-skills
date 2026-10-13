@@ -29,6 +29,10 @@ Skills for diagnosing a job description and building the case for a specific can
 | [`resume-adjudicator`](job-search-writing/resume-adjudicator) | Adjudicates a near-final tailored resume: ship, revise, or reopen |
 | [`application-outreach`](job-search-writing/application-outreach) | Picks the right recipients and channel, then drafts ledger-verified outreach for approval; never sends |
 
+## Packaging
+
+`tools/package_skill.py <skill folder> --out <zip>` builds an installable zip (stores `Skill.md` as `SKILL.md`, leaves out private and local files) and runs the skill's `tests/run_checks.py` from the extracted copy. `application-outreach` has its own `scripts/package_skill.py`.
+
 ## Using a Skill
 
 Copy the Skill's folder (or just its `Skill.md`) into wherever your Claude setup loads Skills from, keeping the folder name and `Skill.md` filename as-is.
