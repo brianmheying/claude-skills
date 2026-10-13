@@ -1,0 +1,70 @@
+{
+  "_comment": "Defaults for application-outreach. Do not put personal data here. Copy to config.local.json (git-ignored) or ~/.config/application-outreach/config.json and override what you need. The data folder is found automatically (see scripts/outreach_tools.py); set career_os_dir in a local config or $CAREER_OS_DIR only if discovery fails.",
+
+  "career_os_dir": null,
+
+  "paths": {
+    "_comment": "Relative to the Career OS data folder. The claim ledger path is also the marker used to discover that folder.",
+    "claim_ledger": "08_Baseline_Master_Resume_Reconstruction_10.2026/CANONICAL_CLAIM_LEDGER.csv",
+    "outreach_log": "04_Output/outreach_ledger.md",
+    "outreach_history_glob": "04_Output/Outreach_Queue_*.md",
+    "job_tracker_xlsx": "04_Output/Job Search Tracker.xlsx",
+    "linkedin_connections": "06_LinkedIn_Evidence/derived/connections_normalized.csv",
+    "linkedin_messages": "06_LinkedIn_Evidence/derived/messages_normalized.csv",
+    "voice_profile": "07_Voice_Profile_2.0/Voice_Profile_2.0.md",
+    "outreach_drafts_dir": "04_Output"
+  },
+
+  "sender": {
+    "signoff_names": [],
+    "_signoff_comment": "Names that appear alone on a sign-off line, so the validator can skip the signature."
+  },
+
+  "employer_aliases": {
+    "_comment": "Optional extra spellings per ledger employer, e.g. {\"Example Corp\": [\"example\", \"exampleco\"]}. Employer names themselves are read from the ledger."
+  },
+
+  "linkedin": {
+    "connection_note_hard_max": 300,
+    "account_note_limit": null,
+    "_account_note_limit_comment": "Set to 200 for a free LinkedIn account (third-party trackers report 200 characters and about 5 noted invites per month; LinkedIn has not confirmed). null = unknown: enforce 300, warn above 200.",
+    "inmail_allowed": false
+  },
+
+  "email": {
+    "from_address": null,
+    "sendable_confidence_levels": ["confirmed", "verified"]
+  },
+
+  "discipline": {
+    "follow_up_max": 1,
+    "follow_up_business_days": [5, 7],
+    "max_concurrent_recipients_per_company": 2,
+    "channel_switch_after_business_days": 10
+  },
+
+  "length_guidance_words": {
+    "email_first_contact": 150,
+    "linkedin_message_after_accept": 90,
+    "continuing_thread": 60
+  },
+
+  "voice_style": {
+    "_comment": "All voice checks are WARNINGS with suggestions, never blocks. Each entry should trace to a stated preference or a measured voice trait.",
+    "dash_characters": ["—", "–"],
+    "ask_should_contain_I": true,
+    "subject_dropped_openers": {
+      "Would you be open": "\"I'd welcome a short conversation if you have time.\"",
+      "Open to": "\"I'd be glad to talk if you're open to it.\"",
+      "Happy to": "\"I can share…\" or \"I'm glad to…\"",
+      "Would love to": "\"I'd love to…\"",
+      "Love to": "\"I'd love to…\"",
+      "Looking forward": "\"I'm looking forward…\""
+    },
+    "style_flags": {
+      "excited": "Manufactured enthusiasm. Say what interests you instead.",
+      "thrilled": "Manufactured enthusiasm. Say what interests you instead.",
+      "passionate": "Manufactured enthusiasm. Demonstrate it with the work instead."
+    }
+  }
+}

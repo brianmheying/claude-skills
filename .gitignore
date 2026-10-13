@@ -1,3 +1,11 @@
 .DS_Store
 __MACOSX/
 *.zip
+
+# Personal settings and private test data stay out of the repo
+config.local.json
+*.local.json
+*.private.json
+tests/private/
+__pycache__/
+*.pyc

@@ -2,7 +2,7 @@
 
 A personal library of reusable [Claude Skills](https://www.anthropic.com/news/skills) — packaged instructions that give Claude a specific, repeatable way to approach a task.
 
-Each Skill lives in its own folder with a `Skill.md` (the skill definition Claude reads) and a `README.md` (a human-readable explanation of what it does and when to use it).
+Each Skill lives in its own folder with a `Skill.md` (the skill definition Claude reads) and a `README.md` (a human-readable explanation of what it does and when to use it). Some Skills also include `references/`, `scripts/` and `tests/`; personal settings for those go in a git-ignored local config, never in the repo.
 
 ## Catalog
 
@@ -27,6 +27,7 @@ Skills for diagnosing a job description and building the case for a specific can
 | [`jd-five-problems`](job-search-writing/jd-five-problems) | Diagnoses the 3–5 underlying business problems a role exists to solve |
 | [`cover-letter-architect`](job-search-writing/cover-letter-architect) | Architects a differentiated, company-specific cover letter argument |
 | [`resume-adjudicator`](job-search-writing/resume-adjudicator) | Adjudicates a near-final tailored resume: ship, revise, or reopen |
+| [`application-outreach`](job-search-writing/application-outreach) | Picks the right recipients and channel, then drafts ledger-verified outreach for approval; never sends |
 
 ## Using a Skill
 

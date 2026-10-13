@@ -1,0 +1,329 @@
+{
+ "_comment": "Synthetic regression suite. Fictional employers and claims; no real data.",
+ "ledger": "fixtures/test_ledger.csv",
+ "config_overrides": {
+  "employer_aliases": {
+   "Northwind": [
+    "northwind"
+   ],
+   "Contoso": [
+    "contoso"
+   ]
+  }
+ },
+ "cases": [
+  {
+   "id": "S01",
+   "label": "Clean claim, qualifiers kept",
+   "text": "Thanks for connecting, Dana.\n\nAt Northwind I took over a manual win-back campaign and rebuilt it around the account-lapse window. Over about 18 months, the program influenced $4M+ in retention revenue, with credit shared with customer success.\n\nCould I get 20 minutes with you?",
+   "channel": "linkedin_message",
+   "status": "applied",
+   "claims": "NW-02,NW-01",
+   "expect": "PASS",
+   "expect_block_contains": [],
+   "expect_no_block_contains": []
+  },
+  {
+   "id": "S02",
+   "label": "Adds '+' the ledger lacks",
+   "text": "At Northwind I built a payment-recovery program and recovered $150K+ in at-risk revenue in one year. I'd welcome a short conversation.",
+   "channel": "linkedin_message",
+   "status": "applied",
+   "claims": "NW-03",
+   "expect": "BLOCK",
+   "expect_block_contains": [
+    "'+'"
+   ],
+   "expect_no_block_contains": []
+  },
+  {
+   "id": "S03",
+   "label": "Prohibited verb on the claim",
+   "text": "At Northwind I rebuilt a win-back program that generated $4M+ in retention revenue. I'd welcome a short conversation.",
+   "channel": "linkedin_message",
+   "status": "applied",
+   "claims": "NW-01,NW-02",
+   "expect": "BLOCK",
+   "expect_block_contains": [
+    "'generated' is prohibited"
+   ],
+   "expect_no_block_contains": []
+  },
+  {
+   "id": "S04",
+   "label": "Sibling safeguard: same program described as churn-risk model",
+   "text": "At Northwind I built retention programs that used customer behavior to spot churn risk, and they influenced $4M+ in retention revenue. I'd welcome a short conversation.",
+   "channel": "linkedin_message",
+   "status": "applied",
+   "claims": "NW-01",
+   "expect": "BLOCK",
+   "expect_block_contains": [
+    "NOT 'new predictive churn-risk model'"
+   ],
+   "expect_no_block_contains": []
+  },
+  {
+   "id": "S05",
+   "label": "Context-aware: unrelated claim at the same employer is not affected",
+   "text": "Your team seems focused on churn risk among new accounts. At Northwind I built a payment-recovery program for the subscription business and recovered $150K in at-risk revenue in one year. I'd welcome a short conversation.",
+   "channel": "linkedin_message",
+   "status": "applied",
+   "claims": "NW-03",
+   "expect": "PASS",
+   "expect_block_contains": [],
+   "expect_no_block_contains": [
+    "predictive"
+   ]
+  },
+  {
+   "id": "S06",
+   "label": "Context-aware: verb about the company, not the claim",
+   "text": "Your team generated strong demand this year. At Northwind I designed and A/B tested a self-serve packaging change, and visitor-to-paid conversion moved from about 2% to 2.6% over the period. I'd welcome a short conversation.",
+   "channel": "linkedin_message",
+   "status": "applied",
+   "claims": "NW-05",
+   "expect": "PASS",
+   "expect_block_contains": [],
+   "expect_no_block_contains": []
+  },
+  {
+   "id": "S07",
+   "label": "Quoted 'Never' form",
+   "text": "At Contoso, I grew web revenue from $1.2M to $3.6M by building onboarding journeys. I'd welcome a short conversation.",
+   "channel": "linkedin_message",
+   "status": "applied",
+   "claims": "CT-01",
+   "expect": "BLOCK",
+   "expect_block_contains": [
+    "Never 'I grew it 3x'"
+   ],
+   "expect_no_block_contains": []
+  },
+  {
+   "id": "S08",
+   "label": "Unverified finding stated as observed",
+   "text": "At Contoso we found that customers who placed four orders almost always kept buying. I'd welcome a short conversation.",
+   "channel": "linkedin_message",
+   "status": "applied",
+   "claims": "CT-02",
+   "expect": "BLOCK",
+   "expect_block_contains": [
+    "observed finding"
+   ],
+   "expect_no_block_contains": []
+  },
+  {
+   "id": "S09",
+   "label": "Figure from a deck-only quantitative note",
+   "text": "At Northwind I compared usage with purchased volume and routed accounts to right-size paths, including three enterprise upgrades. I'd welcome a short conversation.",
+   "channel": "linkedin_message",
+   "status": "applied",
+   "claims": "NW-04",
+   "expect": "BLOCK",
+   "expect_block_contains": [
+    "quantitative note"
+   ],
+   "expect_no_block_contains": []
+  },
+  {
+   "id": "S10",
+   "label": "Holdout language the claim doesn't support",
+   "text": "At Northwind the win-back program influenced $4M+ in retention revenue over about 18 months, measured against holdout groups. I'd welcome a short conversation.",
+   "channel": "linkedin_message",
+   "status": "applied",
+   "claims": "NW-01",
+   "expect": "BLOCK",
+   "expect_block_contains": [
+    "holdout"
+   ],
+   "expect_no_block_contains": []
+  },
+  {
+   "id": "S11",
+   "label": "Do-not-use claim",
+   "text": "At Northwind I extended customer tenure by 40 days. I'd welcome a short conversation.",
+   "channel": "linkedin_message",
+   "status": "applied",
+   "claims": "NW-06",
+   "expect": "BLOCK",
+   "expect_block_contains": [
+    "Do not use"
+   ],
+   "expect_no_block_contains": []
+  },
+  {
+   "id": "S12",
+   "label": "Context-only claim used as an accomplishment",
+   "text": "At Contoso I drove $9M in eCommerce revenue. I'd welcome a short conversation.",
+   "channel": "linkedin_message",
+   "status": "applied",
+   "claims": "CT-03",
+   "expect": "BLOCK",
+   "expect_block_contains": [
+    "Context only"
+   ],
+   "expect_no_block_contains": []
+  },
+  {
+   "id": "S13",
+   "label": "Unmapped accomplishment at a ledger employer",
+   "text": "At Northwind I launched a partner referral program. I'd welcome a short conversation.",
+   "channel": "linkedin_message",
+   "status": "applied",
+   "claims": "",
+   "expect": "BLOCK",
+   "expect_block_contains": [
+    "no ledger claim mapped"
+   ],
+   "expect_no_block_contains": []
+  },
+  {
+   "id": "S14",
+   "label": "Same sentence, recorded as a confirmed hook",
+   "text": "At Northwind I launched a partner referral program. I'd welcome a short conversation.",
+   "channel": "linkedin_message",
+   "status": "applied",
+   "claims": "",
+   "expect": "PASS",
+   "expect_block_contains": [],
+   "expect_no_block_contains": [],
+   "hooks": "Launched a partner referral program at Northwind"
+  },
+  {
+   "id": "S15",
+   "label": "Company statistic quoted, not a claim",
+   "text": "Hi Dana, the stat in your update (9 in 10 keep using it) stuck with me. I'd like to connect.",
+   "channel": "linkedin_note",
+   "status": "applied",
+   "claims": "",
+   "expect": "PASS",
+   "expect_block_contains": [],
+   "expect_no_block_contains": []
+  },
+  {
+   "id": "S16",
+   "label": "Style only: dash and subject-dropped ask warn, never block",
+   "text": "Hi Dana, I applied for the Lifecycle role — onboarding is the problem I know best. Would you be open to a chat?",
+   "channel": "linkedin_note",
+   "status": "applied",
+   "claims": "",
+   "expect": "PASS",
+   "expect_block_contains": [],
+   "expect_no_block_contains": []
+  },
+  {
+   "id": "S17",
+   "label": "Note over the hard limit",
+   "text": "Hi Dana, I applied for the Senior Manager, Lifecycle Marketing role and wanted to connect. I applied for the Senior Manager, Lifecycle Marketing role and wanted to connect. I applied for the Senior Manager, Lifecycle Marketing role and wanted to connect. I applied for the Senior Manager, Lifecycle Ma",
+   "channel": "linkedin_note",
+   "status": "applied",
+   "claims": "",
+   "expect": "BLOCK",
+   "expect_block_contains": [
+    "limit is 300"
+   ],
+   "expect_no_block_contains": []
+  },
+  {
+   "id": "S18",
+   "label": "Account limit lowers the ceiling",
+   "text": "Hi Dana, I applied for the Senior Manager, Lifecycle Marketing role on your team. I rebuilt a win-back program at a subscription software company and I'd like to compare notes on onboarding. I'd like to connect.",
+   "channel": "linkedin_note",
+   "status": "applied",
+   "claims": "",
+   "expect": "BLOCK",
+   "expect_block_contains": [
+    "limit is 200"
+   ],
+   "expect_no_block_contains": [],
+   "config_overrides": {
+    "linkedin": {
+     "account_note_limit": 200
+    }
+   }
+  },
+  {
+   "id": "S19",
+   "label": "Pattern-only email",
+   "text": "Hi Dana,\n\nI applied for the Lifecycle role last week. I'd welcome a short conversation.",
+   "channel": "email",
+   "status": "applied",
+   "claims": "",
+   "expect": "BLOCK",
+   "expect_block_contains": [
+    "pattern"
+   ],
+   "expect_no_block_contains": [],
+   "email_class": "pattern"
+  },
+  {
+   "id": "S20",
+   "label": "Verified email passes",
+   "text": "Hi Dana,\n\nI applied for the Lifecycle role last week. I'd welcome a short conversation.",
+   "channel": "email",
+   "status": "applied",
+   "claims": "",
+   "expect": "PASS",
+   "expect_block_contains": [],
+   "expect_no_block_contains": [],
+   "email_class": "verified"
+  },
+  {
+   "id": "S21",
+   "label": "Simultaneous channel",
+   "text": "Hi Dana,\n\nI applied for the Lifecycle role last week. I'd welcome a short conversation.",
+   "channel": "email",
+   "status": "applied",
+   "claims": "",
+   "expect": "BLOCK",
+   "expect_block_contains": [
+    "another channel"
+   ],
+   "expect_no_block_contains": [],
+   "email_class": "confirmed",
+   "other_channel_active": true
+  },
+  {
+   "id": "S22",
+   "label": "Follow-up already spent",
+   "text": "Hi Dana, one more note on the Lifecycle role. I'd still welcome a conversation.",
+   "channel": "linkedin_message",
+   "status": "applied",
+   "claims": "",
+   "expect": "BLOCK",
+   "expect_block_contains": [
+    "already spent"
+   ],
+   "expect_no_block_contains": [],
+   "prior_touches": 2,
+   "touch": "follow_up"
+  },
+  {
+   "id": "S23",
+   "label": "Says applied before applying",
+   "text": "Hi Dana, I applied for the Lifecycle role and I'd like to connect.",
+   "channel": "linkedin_note",
+   "status": "not_applied",
+   "claims": "",
+   "expect": "BLOCK",
+   "expect_block_contains": [
+    "not_applied"
+   ],
+   "expect_no_block_contains": []
+  },
+  {
+   "id": "S24",
+   "label": "Abbreviation does not split the sentence",
+   "text": "At Contoso Inc. in the U.S. market, I grew web revenue from $1.2M to $3.6M. I'd welcome a short conversation.",
+   "channel": "linkedin_message",
+   "status": "applied",
+   "claims": "CT-01",
+   "expect": "BLOCK",
+   "expect_block_contains": [
+    "Never 'I grew it 3x'"
+   ],
+   "expect_no_block_contains": []
+  }
+ ],
+ "use_template_config": true
+}
